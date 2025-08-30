@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Stylish Sticky Notes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  * {
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  body {
+    margin: 0;
+    background: #fafafa;
+    padding: 20px;
+    color: #333;
+  }
+
+  h1 {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #444;
+  }
+
+  .toolbar {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  button {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    padding: 12px 28px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(37, 117, 252, 0.3);
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+
+  button:hover {
+    background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+    transform: translateY(-2px);
+  }
+
+  .notes-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .note {
+    background: white;
+    border-radius: 16px;
+    box-shadow:
+      0 8px 20px rgba(101, 71, 255, 0.15),
+      inset 0 0 5px rgba(101, 71, 255, 0.1);
+    padding: 15px 15px 35px 15px;
+    min-height: 160px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    resize: vertical;
+    overflow: auto;
+  }
+
+  .note:hover {
+    box-shadow:
+      0 12px 28px rgba(101, 71, 255, 0.35),
+      inset 0 0 8px rgba(101, 71, 255, 0.2);
+    transform: translateY(-3px);
+  }
+
+  .note textarea {
+    flex-grow: 1;
+    width: 100%;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 15px;
+    font-weight: 500;
+    color: #4b4b4b;
+    resize: none;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .delete-btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: #ff4d6d;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-weight: 700;
+    font-size: 18px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(255, 77, 109, 0.4);
+    transition: background 0.3s ease;
+  }
+
+  .delete-btn:hover {
+    background: #ff1c40;
+  }
+</style>
+</head>
+<body>
+  <h1>Stylish Sticky Notes</h1>
+  <div class="toolbar">
+    <button onclick="addNote()">+ Add Note</button>
+  </div>
+  <div class="notes-container" id="notesContainer"></div>
+
+<script>
+  let notes = JSON.parse(localStorage.getItem('stylish_notes') || '[]');
+  const container = document.getElementById('notesContainer');
+
+  function saveNotes() {
+    localStorage.setItem('stylish_notes', JSON.stringify(notes));
+  }
+
+  function createNoteElement(content, index) {
+    const note = document.createElement('div');
+    note.className = 'note';
+
+    const textarea = document.createElement('textarea');
+    textarea.value = content;
+    textarea.placeholder = "Write your note...";
+    textarea.spellcheck = false;
+
+    textarea.oninput = () => {
+      notes[index] = textarea.value;
+      saveNotes();
+    };
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.innerText = '×';
+    deleteBtn.title = 'Delete note';
+    deleteBtn.onclick = () => {
+      notes.splice(index, 1);
+      saveNotes();
+      renderNotes();
+    };
+
+    note.appendChild(textarea);
+    note.appendChild(deleteBtn);
+
+    return note;
+  }
+
+  function renderNotes() {
+    container.innerHTML = '';
+    notes.forEach((note, idx) => {
+      container.appendChild(createNoteElement(note, idx));
+    });
+  }
+
+  function addNote() {
+    notes.push('');
+    saveNotes();
+    renderNotes();
+
+    // Focus the new note textarea
+    setTimeout(() => {
+      const lastNote = container.lastChild;
+      if(lastNote) lastNote.querySelector('textarea').focus();
+    }, 100);
+  }
+
+  renderNotes();
+</script>
+</body>
+</html>
